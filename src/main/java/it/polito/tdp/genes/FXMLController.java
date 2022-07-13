@@ -5,10 +5,18 @@
 package it.polito.tdp.genes;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.ResourceBundle;
+
+import org.jgrapht.Graph;
+import org.jgrapht.Graphs;
+import org.jgrapht.graph.DefaultWeightedEdge;
 
 import it.polito.tdp.genes.model.Genes;
 import it.polito.tdp.genes.model.Model;
+import it.polito.tdp.genes.model.Vicini;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -17,7 +25,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 public class FXMLController {
-	
+	Graph<Genes, DefaultWeightedEdge> grafo;
+
 	private Model model;
 
     @FXML // ResourceBundle that was given to the FXMLLoader
@@ -30,7 +39,7 @@ public class FXMLController {
     private Button btnCreaGrafo; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbGeni"
-    private ComboBox<?> cmbGeni; // Value injected by FXMLLoader
+    private ComboBox<Genes> cmbGeni; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnGeniAdiacenti"
     private Button btnGeniAdiacenti; // Value injected by FXMLLoader
@@ -46,13 +55,42 @@ public class FXMLController {
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	txtResult.setText("Creazione grafo in corso..\n");
+    	this.model.CreaGrafo();
     	
+    	this.grafo = this.model.getGrafo();
+    	
+    	txtResult.appendText("\nVERTICI: "+this.grafo.vertexSet().size());
+    	txtResult.appendText("\nARCHI: "+this.grafo.edgeSet().size());
+    	
+    	this.cmbGeni.getItems().clear();
+    	List<Genes> genes = new ArrayList<>(this.grafo.vertexSet());
+    	Collections.sort(genes);
+    	this.cmbGeni.getItems().addAll(genes);
 
     }
 
     @FXML
     void doGeniAdiacenti(ActionEvent event) {
-
+    	if(this.grafo == null) {
+    		txtResult.setText("DEVI PRIMA CREARE IL GRAFO\n");
+    	}else {
+    		if(this.cmbGeni.getValue() == null) {
+    			txtResult.appendText("\nSELEZIONA UN GENE");
+    		}else {
+    			Genes scelto = this.cmbGeni.getValue();
+    			
+    			List<Vicini> vicini = new ArrayList<>();
+    			for(Genes g : Graphs.neighborListOf(this.grafo, scelto)) {
+    				Vicini v = new Vicini (g, this.grafo.getEdgeWeight(this.grafo.getEdge(scelto, g)));
+    				vicini.add(v);
+    			}
+    			Collections.sort(vicini);
+    			txtResult.setText("Vicini di: "+scelto.toString());
+    			for(Vicini v : vicini)
+    				txtResult.appendText("\n"+v.toString());
+    		}
+    	}
     	
     }
 
