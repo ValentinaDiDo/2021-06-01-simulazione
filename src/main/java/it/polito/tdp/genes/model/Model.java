@@ -46,4 +46,13 @@ public class Model {
 		return grafo;
 	}
 	
+	public Map<Genes, Integer> simula(int ingegneri, Genes partenza){
+		Map<Genes, Integer> geniStudiati;
+		Simulatore simulatore = new Simulatore(grafo, partenza, ingegneri);
+		simulatore.init();
+		simulatore.run();
+		
+		return simulatore.getGeniStudiati();
+
+	}
 }

@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.jgrapht.Graph;
@@ -96,7 +97,33 @@ public class FXMLController {
 
     @FXML
     void doSimula(ActionEvent event) {
-
+    	if(this.grafo == null) {
+    		txtResult.setText("DEVI PRIMA CREARE IL GRAFO\n");
+    	}else {
+    		String input = this.txtIng.getText();
+    		if(input.equals("") || this.cmbGeni.getValue() == null) {
+    			txtResult.appendText("\nPER FAVORE COMPLETA ENTRAMBI I CAMPI");
+    		}else {    	
+    			Genes scelto = this.cmbGeni.getValue();
+    			try {
+    				int ingegneri =  Integer.parseInt(input);
+    				
+    				//SIMULO
+    				Map<Genes, Integer> risultati = this.model.simula(ingegneri, scelto);
+    				txtResult.setText("SIMULAZIONE TERMINATA\n");
+    				
+    				for(Genes g : risultati.keySet()) {
+    					if(risultati.get(g) > 0) {
+    						txtResult.appendText("\n"+g.toString()+" ingegneri: "+risultati.get(g));
+    					}
+    				}
+    				
+    			}catch(NumberFormatException e) {
+    				e.printStackTrace();
+    				txtResult.appendText("\nPER FAVORE INSERISCI SOLO NUMERI");
+    			}
+    		}
+    	}
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
